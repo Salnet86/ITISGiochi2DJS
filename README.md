@@ -17,7 +17,7 @@ JavaScript, HTML and CSS language
 Questi progetti sono stati realizzati da noi studenti dell’**ITIS Grassi**, nell’ambito delle **tecniche di applicazione informatica**.  
 Abbiamo sviluppato giochi in **2D**, applicando concetti base di **fisica** e **cinematica** tramite linguaggi e strumenti per il web.
 
-## 🧠 Tecniche di Cinematica nei Giochi 2D
+## 💯🌐😀 Tecniche di Cinematica nei Giochi 2D
 
 Nel contesto dei giochi 2D, la cinematica viene applicata per gestire:
 
