@@ -26,8 +26,8 @@ Nel contesto dei giochi 2D, la cinematica viene applicata per gestire:
 - La direzione di spostamento rispetto agli input dell’utente (tastiera o touch);
 - Le animazioni basate sul tempo o sulla distanza percorsa.
 
-```
+
 La cinematica viene applicata per studiare i movimenti dei corpi
-```
+
 
 
