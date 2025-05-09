@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Cronometro Analogico e Digitale</title>
+  <style>
+    body {
+      background-color: lime;
+      color: blue;
+      font-family: Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 22px;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    h2 {
+      font-size: 18px;
+      text-align: center;
+      margin-top: 0;
+      margin-bottom: 40px;
+    }
+
+    #container {
+      display: flex;
+      align-items: center;
+      gap: 50px;
+    }
+
+    #CR {
+      background-color: white;
+      border: 2px solid black;
+    }
+
+    #cronometro {
+      font-size: 40px;
+      text-align: left;
+    }
+
+    #buttons {
+      margin-top: 30px;
+    }
+
+    button {
+      font-size: 20px;
+      padding: 10px 20px;
+      margin: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>ITS Grassi – Tecniche di Applicazione Informatiche, Tecniche di Videogiochi, Web Applicazioni 2D</h1>
+  <h2>Lavoro svolto: Tutta la classe – Docente: Cardillo</h2>
+
+  <div id="container">
+    <canvas id="CR" width="400" height="400"></canvas>
+    <div id="cronometro">0:0:0:0</div>
+  </div>
+
+  <div id="buttons">
+    <button onclick="startCount()">Start</button>
+    <button onclick="stopCount()">Stop</button>
+    <button onclick="deleteCount()">Cancella</button>
+  </div>
+
+  <script>
+    let animationFrame;
+    let millisecondi = 0, secondi = 0, minuti = 0, ora = 0;
+    let running = false;
+    const canvas = document.getElementById("CR");
+    const ctx = canvas.getContext("2d");
+
+    function drawClock() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Cerchio esterno
+      ctx.beginPath();
+      ctx.arc(200, 200, 150, 0, 2 * Math.PI);
+      ctx.closePath();
+      ctx.fillStyle = "#EEEEFF";
+      ctx.fill();
+      ctx.lineWidth = 5;
+      ctx.strokeStyle = "#000055";
+      ctx.stroke();
+
+      // Numeri
+      ctx.fillStyle = "blue";
+      ctx.font = "18px Verdana";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      for (let n = 1; n <= 12; n++) {
+        const ang = n * Math.PI / 6;
+        const x = 200 + 120 * Math.sin(ang);
+        const y = 200 - 120 * Math.cos(ang);
+        ctx.fillText(n, x, y);
+      }
+
+      // Tacche
+      for (let i = 0; i < 60; i++) {
+        const ang = i * Math.PI / 30;
+        const x1 = 200 + 140 * Math.sin(ang);
+        const y1 = 200 - 140 * Math.cos(ang);
+        const x2 = 200 + (i % 5 === 0 ? 130 : 135) * Math.sin(ang);
+        const y2 = 200 - (i % 5 === 0 ? 130 : 135) * Math.cos(ang);
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.strokeStyle = "#000055";
+        ctx.lineWidth = i % 5 === 0 ? 3 : 1;
+        ctx.stroke();
+      }
+
+      // Lancette
+      drawHand(millisecondi * Math.PI / 50, 140, "#000000", 1); // ms
+      drawHand(secondi * Math.PI / 30, 135, "#000000", 2); // s
+      drawHand(minuti * Math.PI / 30, 125, "#000000", 4); // m
+      drawHand(ora * Math.PI / 6, 100, "#000000", 5); // h
+
+      // Cronometro digitale
+      document.getElementById("cronometro").innerHTML =
+        `${ora}:${minuti}:${secondi}:${millisecondi}`;
+
+      // Loop animazione
+      if (running) requestAnimationFrame(updateTime);
+    }
+
+    function drawHand(angle, length, color, width) {
+      const x = 200 + length * Math.sin(angle);
+      const y = 200 - length * Math.cos(angle);
+      ctx.beginPath();
+      ctx.moveTo(200, 200);
+      ctx.lineTo(x, y);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = width;
+      ctx.stroke();
+    }
+
+    function updateTime() {
+      millisecondi++;
+      if (millisecondi >= 100) {
+        millisecondi = 0;
+        secondi++;
+      }
+      if (secondi >= 60) {
+        secondi = 0;
+        minuti++;
+      }
+      if (minuti >= 60) {
+        minuti = 0;
+        ora++;
+      }
+      drawClock();
+    }
+
+    function startCount() {
+      if (!running) {
+        running = true;
+        requestAnimationFrame(updateTime);
+      }
+    }
+
+    function stopCount() {
+      running = false;
+    }
+
+    function deleteCount() {
+      millisecondi = 0;
+      secondi = 0;
+      minuti = 0;
+      ora = 0;
+      drawClock();
+      document.getElementById("cronometro").innerHTML = "0:0:0:0";
+    }
+
+    // Primo disegno
+    drawClock();
+  </script>
+</body>
+</html>
