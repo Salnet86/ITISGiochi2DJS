@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cannone con proiettili</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+
+        #canvas {
+            border: 1px solid black;
+        }
+
+        .pulsanti {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .pulsante {
+            padding: 10px 20px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        .pulsante:active {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="canvas" width="600" height="400"></canvas>
+
+<div class="pulsanti">
+    <button id="sinistra" class="pulsante">←</button>
+    <button id="spara" class="pulsante">💥</button>
+    <button id="destra" class="pulsante">→</button>
+</div>
+
+<script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+
+    let x = 200;  // Posizione iniziale del cannone
+    let y = 150;
+    let gradi = 0;  // Angolo iniziale in gradi
+    let proiettili = [];  // Array vuoto per i proiettili
+    let sparando = false;  // Stato di sparo
+
+    // Oggetto fisso con cui controllare la collisione (un rettangolo)
+    const oggettoCollisione = {
+        x: 300,
+        y: 100,
+        larghezza: 50,
+        altezza: 50,
+        visibile: true  // Controlla se il rettangolo è visibile o trasparente
+    };
+
+    // Funzione per disegnare il cannone
+    function disegnaCannone() {
+        ctx.save();
+        ctx.translate(x, y);  // Sposta l'origine al centro del cannone
+        ctx.rotate(gradi * Math.PI / 180);  // Ruota il cannone in base all'angolo
+
+        ctx.fillStyle = "black";
+        ctx.fillRect(0, -5, 40, 10);  // Corpo del cannone
+
+        ctx.restore();
+    }
+
+    // Funzione per verificare la collisione tra il proiettile e l'oggetto fisso
+    function verificaCollisione(proiettile) {
+        // Calcola se il proiettile è dentro il rettangolo dell'oggetto
+        if (proiettile.x > oggettoCollisione.x && proiettile.x < oggettoCollisione.x + oggettoCollisione.larghezza &&
+            proiettile.y > oggettoCollisione.y && proiettile.y < oggettoCollisione.y + oggettoCollisione.altezza) {
+            return true;  // Collisione avvenuta
+        }
+        return false;  // Nessuna collisione
+    }
+
+    // Funzione per aggiornare la posizione dei proiettili
+    function aggiorna() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);  // Pulisce il canvas
+
+        // Muove e disegna i proiettili attivi
+        for (let i = 0; i < proiettili.length; i++) {
+            if (proiettili[i].attivo) {
+                proiettili[i].x += Math.cos(proiettili[i].angolo) * 5;  // Muove il proiettile
+                proiettili[i].y += Math.sin(proiettili[i].angolo) * 5;
+
+                // Verifica la collisione
+                if (verificaCollisione(proiettili[i])) {
+                    console.log("Collisione con l'oggetto!");
+                    oggettoCollisione.visibile = false;  // Rende il rettangolo trasparente (invisibile)
+                    proiettili[i].attivo = false;  // Disattiva il proiettile dopo la collisione
+                }
+
+                // Disegna il proiettile
+                ctx.beginPath();
+                ctx.arc(proiettili[i].x, proiettili[i].y, 3, 0, Math.PI * 2);
+                ctx.fillStyle = "red";  // Colore iniziale del proiettile
+                ctx.fill();
+            }
+        }
+
+        // Disegna l'oggetto fisso per la collisione (se visibile)
+        if (oggettoCollisione.visibile) {
+            ctx.fillStyle = "blue";
+            ctx.fillRect(oggettoCollisione.x, oggettoCollisione.y, oggettoCollisione.larghezza, oggettoCollisione.altezza);
+        }
+
+        disegnaCannone();
+        requestAnimationFrame(aggiorna);  // Richiama l'aggiornamento del canvas
+    }
+
+    // Funzione per sparare
+    function spara() {
+        if (sparando) return;  // Evita sparare mentre è in corso un altro sparo
+
+        sparando = true;  // Imposta sparando a true per evitare spari simultanei
+
+        const angolo = gradi * Math.PI / 180;  // Calcola l'angolo di rotazione
+        const proiettile = {  // Crea un nuovo oggetto per il proiettile
+            x: x,  // Posizione iniziale
+            y: y,
+            angolo: angolo,
+            attivo: true,  // Il proiettile è attivo
+        };
+
+        proiettili.push(proiettile);  // Aggiungi il proiettile all'array
+
+        // Imposta sparando a false dopo 500ms, per consentire il prossimo sparo
+        setTimeout(() => sparando = false, 500);
+    }
+
+    // Pulsante per ruotare il cannone a sinistra
+    document.getElementById("sinistra").addEventListener("click", () => {
+        gradi -= 5;  // Ruota il cannone verso sinistra
+    });
+
+    // Pulsante per ruotare il cannone a destra
+    document.getElementById("destra").addEventListener("click", () => {
+        gradi += 5;  // Ruota il cannone verso destra
+    });
+
+    // Pulsante per sparare
+    document.getElementById("spara").addEventListener("click", spara);
+
+    // Inizia l'aggiornamento continuo
+    aggiorna();
+</script>
+
+</body>
+</html>
