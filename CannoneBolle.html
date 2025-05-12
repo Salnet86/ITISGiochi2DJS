@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Mini Cannone</title>
+  <style>
+    body { text-align: center; background: #eef; margin: 0; font-family: sans-serif; }
+    canvas { background: #ccc; margin: 20px auto; display: block; border: 1px solid #000; }
+    button { margin: 5px; padding: 10px 15px; font-size: 16px; }
+    #description {
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 15px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      text-align: left;
+    }
+    code {
+      background: #f0f0f0;
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <h3>Cannone 2D</h3>
+  <canvas id="canvas" width="600" height="400"></canvas>
+  <div>
+    <button onclick="angle -= 5">← SX</button>
+    <button onclick="angle += 5">→ DX</button>
+    <button onclick="spara()">💣 Spara</button>
+  </div>
+
+  <div id="description">
+    <h3>Mini Progetto Didattico – IFTS ITIS Grassi</h3>
+    <p>
+      Questo semplice gioco 2D è stato realizzato durante un laboratorio pratico presso l'<strong>ITIS Grassi</strong>, all'interno del percorso <strong>IFTS in Informatica e Telecomunicazioni</strong>.
+    </p>
+    <p>
+      Il gioco ha come obiettivo colpire le bolle blu con dei proiettili sparati da un cannone ruotabile. È stato programmato in <strong>JavaScript</strong> usando il tag <code>&lt;canvas&gt;</code> per la grafica.
+    </p>
+    <p>
+      Per calcolare la traiettoria del proiettile è stata utilizzata una proporzione trigonometrica:
+    </p>
+    <p style="text-align: center; font-size: 1.2em;">
+      <code>x : y = cos(θ) : sin(θ)</code>
+    </p>
+    <p>
+      Questa proporzione ci ha permesso di definire la direzione e la velocità dei colpi in base all'angolo del cannone. Il progetto ha aiutato la classe a comprendere meglio la relazione tra matematica, fisica e programmazione.
+    </p>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+
+    let angle = 0;
+    const cannon = { x: 300, y: 350, len: 60 };
+    const bullets = [];
+    let bolle = [];
+
+    function creaBolle() {
+      bolle = [];
+      for (let i = 0; i < 10; i++) {
+        bolle.push({ x: Math.random()*560+20, y: Math.random()*200+20, r: 15, colpita: false });
+      }
+    }
+
+    function spara() {
+      const rad = angle * Math.PI / 180;
+      bullets.push({
+        x: cannon.x + cannon.len * Math.cos(rad),
+        y: cannon.y + cannon.len * Math.sin(rad),
+        vx: 5 * Math.cos(rad),
+        vy: 5 * Math.sin(rad)
+      });
+    }
+
+    function disegna() {
+      ctx.clearRect(0, 0, 600, 400);
+
+      // cannone
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = 8;
+      const rad = angle * Math.PI / 180;
+      ctx.beginPath();
+      ctx.moveTo(cannon.x, cannon.y);
+      ctx.lineTo(cannon.x + cannon.len * Math.cos(rad), cannon.y + cannon.len * Math.sin(rad));
+      ctx.stroke();
+
+      // proiettili
+      ctx.fillStyle = "red";
+      bullets.forEach(b => {
+        b.x += b.vx; b.y += b.vy;
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, 5, 0, 2 * Math.PI);
+        ctx.fill();
+      });
+
+      // bolle
+      ctx.fillStyle = "blue";
+      bolle.forEach(b => {
+        if (!b.colpita) {
+          ctx.beginPath();
+          ctx.arc(b.x, b.y, b.r, 0, 2 * Math.PI);
+          ctx.fill();
+        }
+      });
+
+      // collisioni
+      bullets.forEach(p => {
+        bolle.forEach(b => {
+          const dx = p.x - b.x, dy = p.y - b.y;
+          if (!b.colpita && Math.sqrt(dx*dx + dy*dy) < b.r + 5) b.colpita = true;
+        });
+      });
+
+      // rigenera
+      if (bolle.every(b => b.colpita)) creaBolle();
+
+      requestAnimationFrame(disegna);
+    }
+
+    creaBolle();
+    disegna();
+  </script>
+</body>
+</html>
