@@ -1,33 +1,28 @@
-# ITISGiochi2DJS
-#ITIS GRASSI INFORMATICA E TELECOMUNICAZIONE TECNICA DI APPLICAZIONE GIOCHI IN 
-2D 
+# ITIS Giochi 2D con JavaScript
 
-QUESTI PROGETTI SONO STATI FATTI DA NOI STUDENTI 
-tecniche di cinematica applicate per i giochi a 2D 
-usando linguaggio web application js JavaScript 
-html css gioco della donna foletta 
-----------------------------------------
-JavaScript, HTML and CSS language
-----------------------------------------
+Benvenuti nella repository **ITIS Giochi 2D con JavaScript**!  
+Questa raccolta contiene vari giochi 2D sviluppati con JavaScript e HTML, creati nell'ambito del corso di Informatica all'ITIS Grassi.
 
-# 🎮 ITIS GRASSI – Tecniche di Applicazione: Giochi in 2D
+## 🎮 Giochi inclusi
 
-## 📚 Descrizione
+- **Super Mario**: Un clone del famoso gioco platform.
+- **Labirinto 2D**: Un gioco di esplorazione di labirinti.
+- **Poligono 2D**: Un esempio di gioco con forme geometriche.
+- **Cannone Bolle**: Un gioco in cui si spara a bolle colorate.
+- **Guerra Stellare**: Un gioco di combattimento spaziale.
 
-Questi progetti sono stati realizzati da noi studenti dell’**ITIS Grassi**, nell’ambito delle **tecniche di applicazione informatica**.  
-Abbiamo sviluppato giochi in **2D**, applicando concetti base di **fisica** e **cinematica** tramite linguaggi e strumenti per il web.
+## 📂 Struttura dei file
 
-## 💯🌐😀 Tecniche di Cinematica nei Giochi 2D
+- **SuperMario.zip**: Contiene il gioco "Super Mario".
+- **Labirinto2D.zip**: Contiene il gioco "Labirinto 2D".
+- **Poligono2D.zip**: Contiene il gioco "Poligono 2D".
+- **CannoneBolle.zip**: Contiene il gioco "Cannone Bolle".
+- **GuerraStellare.zip**: Contiene il gioco "Guerra Stellare".
 
-Nel contesto dei giochi 2D, la cinematica viene applicata per gestire:
+## 📄 Licenza
 
-- Il movimento degli oggetti (velocità, accelerazione, posizione);
-- Le collisioni tra personaggi, ostacoli e bonus;
-- La direzione di spostamento rispetto agli input dell’utente (tastiera o touch);
-- Le animazioni basate sul tempo o sulla distanza percorsa.
+Questa repository è condivisa a scopo educativo e personale. Per usi commerciali contattare l’autore.
 
+## 👤 Autore
 
-La cinematica viene applicata per studiare i movimenti dei corpi
-
-
-
+**SalvoNet** – Tecnico in elettronica appassionato di sviluppo di giochi 2D con JavaScript.
