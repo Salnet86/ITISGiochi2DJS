@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>Ripasso Robotica e Simulatore</title>
+<style>
+  body { font-family: sans-serif; line-height: 1.6; margin: 20px; }
+  h1, h2, h3 { color: #1a73e8; }
+  pre { background: #f4f4f4; padding: 10px; border-left: 4px solid #1a73e8; }
+  table { border-collapse: collapse; margin-top:10px; margin-bottom:10px; }
+  th, td { border:1px solid #ccc; padding:5px 10px; text-align:center; }
+</style>
+</head>
+<body>
+
+<h1>Ripasso: Robot, Celle e Simulatore Web</h1>
+
+<h2>1. Numero di celle in una mappa</h2>
+<p>Se hai un'area totale e vuoi dividerla in celle di dimensioni note:</p>
+<pre>
+Numero celle = Area totale / Area cella
+</pre>
+<p>Esempio:</p>
+<ul>
+<li>Area totale: 100 m²</li>
+<li>Area cella: 0.25 m²</li>
+<li>Numero celle = 100 / 0.25 = 400</li>
+</ul>
+
+<table>
+<tr><th>Area totale</th><th>Area cella</th><th>Numero celle</th><th>Significato</th></tr>
+<tr><td>100 m²</td><td>0.25 m²</td><td>400</td><td>Griglia di 400 celle</td></tr>
+<tr><td>25 m²</td><td>0.25 m²</td><td>100</td><td>Griglia più piccola</td></tr>
+<tr><td>100 m²</td><td>0.01 m²</td><td>10.000</td><td>Griglia più dettagliata</td></tr>
+</table>
+
+<h2>2. Conversione coordinate reali → celle</h2>
+<p>Il robot reale non conosce la mappa: deve convertire le sue coordinate metriche (x, y in metri) nella griglia di celle:</p>
+<pre>
+indice_cella_x = x_reale / lato_cella
+indice_cella_y = y_reale / lato_cella
+</pre>
+<p>Esempio:</p>
+<ul>
+<li>Posizione reale robot: x = 2 m, y = 1 m</li>
+<li>Lato cella = 0.25 m</li>
+<li>indice_cella_x = 2 / 0.25 = 8</li>
+<li>indice_cella_y = 1 / 0.25 = 4</li>
+<li>Il robot si trova nella cella (8,4)</li>
+</ul>
+
+<h2>3. Differenza tra semplice mappa e SLAM</h2>
+<table>
+<tr><th>Tecnica</th><th>Posizione iniziale</th><th>Mappa costruita</th></tr>
+<tr><td>Occupancy grid semplice</td><td>Devi posizionare il robot manualmente</td><td>Aggiorna celle usando sensori, ma non conosce posizione da solo</td></tr>
+<tr><td>SLAM</td><td>Robot non sa nulla</td><td>Stima contemporaneamente la mappa e la posizione usando sensori e odometria</td></tr>
+</table>
+
+<h2>4. Simulatore web: griglia e conversione pixel → centimetri</h2>
+<p>È possibile creare un simulatore con HTML/Canvas e JavaScript, e poi convertire i pixel in unità reali:</p>
+
+<h3>4.1 Creazione griglia</h3>
+<pre>
+&lt;canvas id="mappa" width="500" height="500"&gt;&lt;/canvas&gt;
+&lt;script&gt;
+const canvas = document.getElementById("mappa");
+const ctx = canvas.getContext("2d");
+const cellSize = 25; // pixel per cella
+
+// disegno griglia
+for(let x=0; x&lt;=canvas.width; x+=cellSize){
+    ctx.moveTo(x,0);
+    ctx.lineTo(x,canvas.height);
+}
+for(let y=0; y&lt;=canvas.height; y+=cellSize){
+    ctx.moveTo(0,y);
+    ctx.lineTo(canvas.width,y);
+}
+ctx.strokeStyle = "#ccc";
+ctx.stroke();
+&lt;/script&gt;
+</pre>
+
+<h3>4.2 Conversione pixel → centimetri</h3>
+<pre>
+const pixelPerCm = 2; // scala: 1 cm = 2 pixel
+const cellSizeCm = 25; // ogni cella = 25 cm
+const cellSizePixel = cellSizeCm * pixelPerCm;
+
+let xPixel = 200;
+let yPixel = 100;
+let indiceX = Math.floor(xPixel / cellSizePixel);
+let indiceY = Math.floor(yPixel / cellSizePixel);
+</pre>
+
+<h3>4.3 Mappa interna (matrice) e robot</h3>
+<pre>
+const rows = canvas.height / cellSizePixel;
+const cols = canvas.width / cellSizePixel;
+let map = Array.from({length: rows}, () =&gt; Array(cols).fill(0));
+
+let robotX = 4;
+let robotY = 2;
+map[robotY][robotX] = 1; // robot
+</pre>
+
+<h3>4.4 Movimento robot con frecce</h3>
+<pre>
+document.addEventListener("keydown", (e) =&gt; {
+    map[robotY][robotX] = 0;
+    if(e.key === "ArrowUp" &amp;&amp; robotY&gt;0) robotY--;
+    if(e.key === "ArrowDown" &amp;&amp; robotY&lt;rows-1) robotY++;
+    if(e.key === "ArrowLeft" &amp;&amp; robotX&gt;0) robotX--;
+    if(e.key === "ArrowRight" &amp;&amp; robotX&lt;cols-1) robotX++;
+    map[robotY][robotX] = 1;
+    drawGrid();
+});
+</pre>
+
+<h3>4.5 Scala tra pixel e metri reali</h3>
+<p>Decidi quanti pixel rappresentano 1 metro. Esempio:</p>
+<ul>
+<li>Scala: 1 m = 20 pixel</li>
+<li>Stanza 10 m × 10 m → 200 px × 200 px</li>
+<li>Ogni cella lato 0.5 m → 10 px per cella</li>
+</ul>
+
+<p>Quindi puoi fare simulazioni virtuali e poi inviare i dati al robot reale usando le **coordinate convertite in metri o centimetri**.</p>
+
+<h2>5. Riassunto concettuale</h2>
+<ul>
+<li>Numero di celle = area totale / area cella</li>
+<li>Conversione coordinate reali → indice cella = posizione / lato cella</li>
+<li>Occupancy grid: robot deve conoscere la posizione iniziale</li>
+<li>SLAM: robot scopre mappa e posizione autonomamente</li>
+<li>Simulatore web: puoi disegnare griglia in pixel e convertire in cm/m per robot reale</li>
+</ul>
+
+<h2>6. Tutorial completo esempio simulatore</h2>
+<pre>
+&lt;!DOCTYPE html&gt;
+&lt;html lang="it"&gt;
+&lt;head&gt;
+&lt;meta charset="UTF-8"&gt;
+&lt;title&gt;Simulazione Robot&lt;/title&gt;
+&lt;style&gt;
+  body { font-family: sans-serif; }
+  canvas { border:1px solid black; background: #f9f9f9; }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;canvas id="mappa" width="500" height="500"&gt;&lt;/canvas&gt;
+&lt;script&gt;
+const canvas = document.getElementById("mappa");
+const ctx = canvas.getContext("2d");
+
+const cellSizeCm = 25;
+const pixelPerCm = 2;
+const cellSizePixel = cellSizeCm * pixelPerCm;
+
+const rows = canvas.height / cellSizePixel;
+const cols = canvas.width / cellSizePixel;
+
+let map = Array.from({length: rows}, () =&gt; Array(cols).fill(0));
+let robotX = 4;
+let robotY = 2;
+map[robotY][robotX] = 1;
+
+function drawGrid() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    for(let y=0;y&lt;rows;y++){
+        for(let x=0;x&lt;cols;x++){
+            if(map[y][x]===1){
+                ctx.fillStyle = "blue";
+                ctx.fillRect(x*cellSizePixel,y*cellSizePixel,cellSizePixel,cellSizePixel);
+            } else {
+                ctx.strokeStyle = "#ccc";
+                ctx.strokeRect(x*cellSizePixel,y*cellSizePixel,cellSizePixel,cellSizePixel);
+            }
+        }
+    }
+}
+drawGrid();
+
+document.addEventListener("keydown",(e)=>{
+    map[robotY][robotX] = 0;
+    if(e.key==="ArrowUp"&amp;&amp;robotY&gt;0) robotY--;
+    if(e.key==="ArrowDown"&amp;&amp;robotY&lt;rows-1) robotY++;
+    if(e.key==="ArrowLeft"&amp;&amp;robotX&gt;0) robotX--;
+    if(e.key==="ArrowRight"&amp;&amp;robotX&lt;cols-1) robotX++;
+    map[robotY][robotX]=1;
+    drawGrid();
+});
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+
+<p>Con questo documento hai un **ripasso completo** dalla teoria delle celle fino a un **simulatore web pratico** pronto da provare e modificare.</p>
+
+</body>
+</html>

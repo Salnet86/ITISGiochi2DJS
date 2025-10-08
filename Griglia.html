@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>Simulazione Robot</title>
+<style>
+  body { font-family: sans-serif; }
+  canvas { border:1px solid black; background: #f9f9f9; }
+</style>
+</head>
+<body>
+<h2>Simulazione Robot su griglia</h2>
+<canvas id="mappa" width="500" height="500"></canvas>
+<p>Usa le frecce ↑ ↓ ← → per muovere il robot</p>
+
+<script>
+const canvas = document.getElementById("mappa");
+const ctx = canvas.getContext("2d");
+
+// Parametri
+const cellSizeCm = 25;        // ogni cella = 25 cm
+const pixelPerCm = 2;         // scala: 1 cm = 2 pixel
+const cellSizePixel = cellSizeCm * pixelPerCm; // pixel per cella
+
+const rows = canvas.height / cellSizePixel;
+const cols = canvas.width / cellSizePixel;
+
+// Creiamo la mappa: 0 = libero, 1 = robot
+let map = Array.from({length: rows}, () => Array(cols).fill(0));
+
+// Posizione iniziale robot (in celle)
+let robotX = 4;
+let robotY = 2;
+map[robotY][robotX] = 1;
+
+// Disegna la griglia
+function drawGrid() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // celle
+    for(let y=0; y<rows; y++){
+        for(let x=0; x<cols; x++){
+            if(map[y][x] === 1){
+                ctx.fillStyle = "blue"; // robot
+                ctx.fillRect(x*cellSizePixel, y*cellSizePixel, cellSizePixel, cellSizePixel);
+            } else {
+                ctx.strokeStyle = "#ccc";
+                ctx.strokeRect(x*cellSizePixel, y*cellSizePixel, cellSizePixel, cellSizePixel);
+            }
+        }
+    }
+}
+
+// Muovere il robot
+document.addEventListener("keydown", (e) => {
+    map[robotY][robotX] = 0; // pulisco la cella precedente
+    if(e.key === "ArrowUp" && robotY>0) robotY--;
+    if(e.key === "ArrowDown" && robotY<rows-1) robotY++;
+    if(e.key === "ArrowLeft" && robotX>0) robotX--;
+    if(e.key === "ArrowRight" && robotX<cols-1) robotX++;
+    map[robotY][robotX] = 1; // aggiorno la cella del robot
+    drawGrid();
+});
+
+// Conversione pixel → celle
+function pixelToCell(px, py){
+    let cx = Math.floor(px / cellSizePixel);
+    let cy = Math.floor(py / cellSizePixel);
+    return {cx, cy};
+}
+
+// Disegna iniziale
+drawGrid();
+</script>
+</body>
+</html>
